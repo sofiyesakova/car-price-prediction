@@ -1,0 +1,22 @@
+# =====================
+# VIRTUAL ENVIRONMENT
+# =====================
+venv/
+
+# =====================
+# PYTHON CACHE
+# =====================
+__pycache__/
+*.pyc
+
+# =====================
+# JUPYTER NOTEBOOK CACHE
+# =====================
+.ipynb_checkpoints/
+
+
+# =====================
+# SYSTEM FILES
+# =====================
+.DS_Store
+Thumbs.db
