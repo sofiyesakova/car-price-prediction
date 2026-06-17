@@ -1,3 +1,13 @@
+import sys
+import os
+
+# добавляем корень проекта в PYTHONPATH
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")
+    )
+)
+
 import pandas as pd
 import numpy as np
 
@@ -10,7 +20,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 import joblib
 
-from db.data_loader import load_data
+from DB.data_loader import load_data
 
 
 # ==================================================
@@ -18,179 +28,111 @@ from db.data_loader import load_data
 # ==================================================
 
 df = load_data()
-
 print(f"Data shape: {df.shape}")
 
+
 # ==================================================
-# 2. FEATURE SETS
+# 2. FEATURE SET
 # ==================================================
 
 FEATURE_SETS = {
-    "basic": [
-        "marke",
-        "modell",
-    ],
-
-    "extended": [
-        "marke",
-        "modell",
-        "kraftstoff",
-        "getriebe",
-        "hubraum_l"
-    ],
-
+    "basic": ["marke", "modell"],
+    "extended": ["marke", "modell", "kraftstoff", "getriebe", "hubraum_l"],
     "all": [
-        "marke",
-        "modell",
-        "verkaufszahl",
-        "kraftstoff",
-        "getriebe",
-        "hubraum_l",
-        "kundenzufriedenheit",
-        "bundesland",
-        "jahr",
-        "monat",
-        "wochentag"
+        "marke", "modell", "verkaufszahl",
+        "kraftstoff", "getriebe", "hubraum_l",
+        "kundenzufriedenheit", "bundesland",
+        "jahr", "monat", "wochentag"
     ]
 }
 
-# Выбираем набор признаков для эксперимента
 SELECTED_FEATURE_SET = "basic"
-
 TARGET = "preis_euro"
-
-
-# ==================================================
-# 3. FEATURE SELECTION
-# ==================================================
 
 selected_features = FEATURE_SETS[SELECTED_FEATURE_SET]
 
 X = df[selected_features]
 y = df[TARGET]
 
+
 print(f"\nUsing feature set: {SELECTED_FEATURE_SET}")
 print(f"Features: {selected_features}")
 
 
 # ==================================================
-# 4. DEFINE FEATURE TYPES
+# 3. COLUMN TYPES
 # ==================================================
 
-# Полный список числовых признаков проекта
-ALL_NUMERIC_FEATURES = [
-    "verkaufszahl",
-    "hubraum_l",
-    "kundenzufriedenheit",
-    "jahr",
-    "monat"
-]
-
-# Полный список категориальных признаков проекта
-ALL_CATEGORICAL_FEATURES = [
-    "marke",
-    "modell",
-    "kraftstoff",
-    "getriebe",
-    "bundesland",
-    "wochentag"
-]
-
-# Автоматически оставляем только те,
-# которые присутствуют в текущем наборе фич
-
 numeric_features = [
-    feature
-    for feature in selected_features
-    if feature in ALL_NUMERIC_FEATURES
+    col for col in selected_features
+    if col in ["verkaufszahl", "hubraum_l", "kundenzufriedenheit", "jahr", "monat"]
 ]
 
 categorical_features = [
-    feature
-    for feature in selected_features
-    if feature in ALL_CATEGORICAL_FEATURES
+    col for col in selected_features
+    if col in ["marke", "modell", "kraftstoff", "getriebe", "bundesland", "wochentag"]
 ]
 
-print("\nNumeric features:")
-print(numeric_features)
 
-print("\nCategorical features:")
-print(categorical_features)
+print("\nNumeric features:", numeric_features)
+print("Categorical features:", categorical_features)
 
 
 # ==================================================
-# 5. PREPROCESSING
+# 4. PREPROCESSOR
 # ==================================================
 
 transformers = []
 
-# Добавляем scaler только если есть числовые признаки
 if numeric_features:
     transformers.append(
-        (
-            "num",
-            StandardScaler(),
-            numeric_features
-        )
+        ("num", StandardScaler(), numeric_features)
     )
 
-# Добавляем encoder только если есть категориальные признаки
 if categorical_features:
     transformers.append(
-        (
-            "cat",
-            OneHotEncoder(handle_unknown="ignore"),
-            categorical_features
-        )
+        ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features)
     )
 
-preprocessor = ColumnTransformer(
-    transformers=transformers
-)
+preprocessor = ColumnTransformer(transformers=transformers)
 
 
 # ==================================================
-# 6. MODEL PIPELINE
+# 5. MODEL PIPELINE
 # ==================================================
 
-model = Pipeline(
-    steps=[
-        ("preprocessor", preprocessor),
-        ("regressor", LinearRegression())
-    ]
-)
+model = Pipeline([
+    ("preprocessor", preprocessor),
+    ("regressor", LinearRegression())
+])
 
 
 # ==================================================
-# 7. TRAIN / TEST SPLIT
+# 6. TRAIN / TEST SPLIT
 # ==================================================
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.2,
-    random_state=42
+    X, y, test_size=0.2, random_state=42
 )
 
 
 # ==================================================
-# 8. TRAIN MODEL
+# 7. TRAIN
 # ==================================================
 
 model.fit(X_train, y_train)
-
 print("\nModel training completed.")
 
 
 # ==================================================
-# 9. PREDICTIONS
+# 8. PREDICT
 # ==================================================
 
 y_pred = model.predict(X_test)
 
 
 # ==================================================
-# 10. EVALUATION
+# 9. EVALUATION
 # ==================================================
 
 mae = mean_absolute_error(y_test, y_pred)
@@ -204,10 +146,21 @@ print(f"R²   : {r2:.4f}")
 
 
 # ==================================================
-# 11. SAVE MODEL
+# 10. SAVE
 # ==================================================
 
+import os
 
-joblib.dump(model, "models/linear_regression.pkl")
+BASE_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..")
+)
 
-print("Model saved")
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    "models",
+    "linear_regression.pkl"
+)
+
+joblib.dump(model, MODEL_PATH)
+
+print(f"Model saved: {MODEL_PATH}")
