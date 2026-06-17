@@ -29,4 +29,11 @@ Thumbs.db
 
 # Secrets
 .env
+config.py
 
+
+IDE
+
+.vscode/
+test_1.ipynb
+test.py

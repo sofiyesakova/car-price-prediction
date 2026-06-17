@@ -10,7 +10,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 import joblib
 
-from db.data_loader import load_data
+from DB.data_loader import load_data
 
 
 # ==================================================
