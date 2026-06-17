@@ -20,7 +20,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 import joblib
 
-from DB.data_loader import load_data
+from db.data_loader import load_data
 
 
 # ==================================================
@@ -46,7 +46,7 @@ FEATURE_SETS = {
     ]
 }
 
-SELECTED_FEATURE_SET = "basic"
+SELECTED_FEATURE_SET = "all"
 TARGET = "preis_euro"
 
 selected_features = FEATURE_SETS[SELECTED_FEATURE_SET]
@@ -158,7 +158,7 @@ BASE_DIR = os.path.abspath(
 MODEL_PATH = os.path.join(
     BASE_DIR,
     "models",
-    "linear_regression.pkl"
+    "linear_regression_all.pkl"
 )
 
 joblib.dump(model, MODEL_PATH)
