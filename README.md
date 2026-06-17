@@ -94,7 +94,43 @@ Kundenzufriedenheit: 5
 ```bash
 python -m email_pipeline.main
 ```
+=======
+# 🌐 Web Application
 
+Mithilfe von Streamlit wurde eine einfache Weboberfläche entwickelt. Die Anwendung ermöglicht es den Nutzern, Fahrzeugparameter einzugeben und auf der Grundlage des trainierten Modells für maschinelles Lernen eine Preisprognose für das Fahrzeug zu erhalten.
+
+## Run the Application
+
+Wechseln Sie in das Stammverzeichnis des Projekts und führen Sie folgenden Befehl aus:
+
+```bash
+streamlit run app.py
+```
+
+Nach dem Start der Anwendung öffnet Streamlit automatisch ein Browserfenster.
+
+Falls dies nicht automatisch geschieht, rufen Sie die im Terminal angezeigte URL auf, zum Beispiel:
+
+```text
+http://localhost:8501
+```
+
+## Verwendung der Anwendung
+
+1. Wählen Sie das gewünschte Machine-Learning-Modell aus.
+2. Geben Sie die Fahrzeugparameter ein.
+3. Klicken Sie auf die Schaltfläche „Vorhersage“.
+4. Der geschätzte Fahrzeugpreis wird auf dem Bildschirm angezeigt.
+
+## Verfügbare Modelle
+
+Die Anwendung unterstützt die folgenden trainierten Modelle:
+
+- Lineare Regression
+- Random-Forest-Regressor
+- Gradient-Boosting-Regressor
+
+Benutzer können die Vorhersagen verschiedener Modelle direkt über die Benutzeroberfläche vergleichen.
 
 ## Datenschutz & Datenquelle
 
@@ -103,3 +139,127 @@ Für dieses Projekt wird ein Datensatz verwendet, der auf öffentlich verfügbar
 Der Datensatz enthält keine personenbezogenen Daten wie Namen, Telefonnummern, E-Mail-Adressen oder Adressen. Es werden ausschließlich aggregierte Fahrzeug- und Marktdaten verwendet.
 
 Daher ist die Nutzung des Datensatzes DSGVO-konform und für Analyse- und Lernzwecke im Rahmen des Projekts geeignet.
+
+# 📊 Modellbewertung der Ergebnisse
+
+## 🔍 Vergleich der Modelle
+
+Alle Modelle wurden mit demselben Feature-Set trainiert:
+
+- `marke`
+- `modell`
+
+Folgende Modelle wurden evaluiert:
+
+- Lineare Regression
+- Random Forest
+- Gradient Boosting
+
+### Ergebnisse:
+
+| Modell             |      MAE |     RMSE |     R² |
+| ------------------ | -------: | -------: | -----: |
+| Lineare Regression | 13452.22 | 16423.23 | 0.6003 |
+| Gradient Boosting  | 13452.24 | 16423.20 | 0.6003 |
+| Random Forest      | 13459.48 | 16416.15 | 0.6007 |
+
+---
+
+## 🏆 Bestes Modell
+
+Das beste Modell ist:
+
+**Random Forest Regressor**
+
+- **MAE:** 13.459,48
+- **RMSE:** 16.416,15
+- **R²:** 0.6007
+
+Die Unterschiede zwischen den Modellen sind jedoch sehr gering.
+
+---
+
+# 📈 Interpretation der Ergebnisse
+
+## ⚠️ Zentrale Beobachtung
+
+Alle getesteten Modelle zeigen nahezu identische Ergebnisse:
+
+- R² ≈ **0.60**
+- MAE ≈ **13.400–13.500**
+- RMSE ≈ **16.400**
+
+Das zeigt eindeutig, dass die Modellwahl nur einen sehr geringen Einfluss auf die Performance hat.
+
+---
+
+## 🧠 Warum ist die Leistung begrenzt?
+
+### 1. Starke Dominanz des Features `modell`
+
+Das Fahrzeugmodell erklärt bereits einen großen Teil der Preisvariation.
+
+Jedes Modell hat einen relativ stabilen durchschnittlichen Preisbereich, zum Beispiel:
+
+- `Corsa` → ~29.000 €
+- `Passat` → ~42.000 €
+- `E-Klasse` → ~82.000 €
+
+👉 Das bedeutet, dass das Modell bereits den größten Teil des Preissignals enthält.
+
+---
+
+### 2. Geringer Einfluss der anderen Features
+
+Andere verfügbare Merkmale (z. B. Kraftstoffart, Getriebe, Verkaufszahl, Kundenzufriedenheit usw.) zeigen **sehr geringe oder nahezu keine Korrelation mit dem Zielwert (Preis)**.
+
+In der Praxis bedeutet das:
+
+> Diese Features tragen nur minimal zur Erklärung der Preisunterschiede bei.
+
+Daher verbessert ihre Nutzung die Modellleistung kaum.
+
+---
+
+### 3. Hohe Streuung innerhalb desselben Modells
+
+Selbst innerhalb eines Fahrzeugmodells gibt es große Preisunterschiede:
+
+- C-Klasse: ±18.000 €
+- E-Klasse: ±22.000 €
+
+Diese Variabilität kann mit den aktuellen Features nicht vollständig erklärt werden.
+
+---
+
+### 4. Das Modell ist nicht der limitierende Faktor
+
+Da alle Modelle nahezu gleich gut performen, zeigt sich:
+
+> Die Begrenzung liegt in den Daten, nicht in den Algorithmen.
+
+Komplexere Modelle können die Leistung nicht verbessern, wenn keine zusätzlichen relevanten Features vorhanden sind.
+
+---
+
+# 📌 Fazit
+
+- Alle Modelle erreichen ein Leistungsplateau bei ca. R² = 0.60
+- Das Feature `modell` ist der wichtigste Prädiktor
+- Weitere Features haben nur geringe Vorhersagekraft
+- Die Modellwahl hat kaum Einfluss auf die Endleistung
+
+---
+
+# 🚀 Zukünftige Verbesserungen
+
+Um die Vorhersagequalität zu verbessern, sollten zusätzliche relevante Merkmale integriert werden:
+
+- Kilometerstand
+- Motorleistung (PS)
+- Fahrzeugzustand
+- Anzahl der Vorbesitzer
+- Ausstattung / Trim-Level
+- Unfallhistorie
+
+Diese Merkmale würden die Modellgenauigkeit voraussichtlich deutlich erhöhen.
