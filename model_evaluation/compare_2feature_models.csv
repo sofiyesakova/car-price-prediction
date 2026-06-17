@@ -1,0 +1,5 @@
+Model,MAE (€),RMSE (€),R²,Error (%),Accuracy (%)
+Random Forest,13458.98,16387.09,0.6078,25.66,74.34
+Linear Regression,13449.45,16391.1,0.6076,25.65,74.35
+Linear Regression Basic,13449.45,16391.1,0.6076,25.65,74.35
+Gradient Boosting,13449.58,16391.11,0.6076,25.65,74.35
