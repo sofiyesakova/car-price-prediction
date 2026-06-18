@@ -37,3 +37,6 @@ IDE
 .vscode/
 test_1.ipynb
 test.py
+
+
+models/*.pkl
