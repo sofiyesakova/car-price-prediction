@@ -2,7 +2,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
-# загрузка переменных окружения
+
+# Laden von Umgebungsvariablen
 load_dotenv()
 
 user = os.getenv("DB_USER")
@@ -11,7 +12,7 @@ host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
 db = os.getenv("DB_NAME")
 
-# подключение к PostgreSQL
+# Verbindung zu PostgreSQL herstellen
 engine = create_engine(
     f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
 )
