@@ -107,7 +107,7 @@ Zusätzlich verfügt die Anwendung über ein mehrstufiges Eingabeformular, eine 
 Wechseln Sie in das Stammverzeichnis des Projekts und führen Sie folgenden Befehl aus:
 
 ```bash
-python app.py
+python app1.py
 ```
 
 Nach dem Start der Anwendung kann die Webanwendung im Browser unter folgender Adresse geöffnet werden:
