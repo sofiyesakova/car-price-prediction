@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kontakt - AutoPredict AI</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <header class="site-header">
+        <div class="logo">
+            <span class="gold">Auto</span>Predict AI
+        </div>
+
+        <nav class="nav-links">
+            <a href="/" class="{% if request.path == '/' %}active{% endif %}">Startseite</a>
+            <a href="/predict" class="{% if request.path == '/predict' %}active{% endif %}">Preis vorhersagen</a>
+            <a href="/satisfaction" class="{% if request.path == '/satisfaction' %}active{% endif %}">Zufriedenheit vorhersagen</a>
+            <a href="/contact" class="{% if request.path == '/contact' %}active{% endif %}">Kontakt</a>
+        </nav>
+    </header>
+
+    <section class="contact-hero">
+        <h1 class="contact-title">KONTAKT</h1>
+        <p class="contact-subtitle">
+            Kontaktieren Sie unseren KI-Assistenten und erhalten Sie intelligente Antworten in wenigen Sekunden.
+        </p>
+    </section>
+
+    <div class="text-center mb-5">
+        <h3>Für eine genaue KI-Prognose können Sie Ihre Fahrzeugdaten Schritt für Schritt eingeben.</h3>
+
+        <button class="btn btn-gold btn-lg mt-3" type="button" onclick="openWizard()">
+            Formular zur KI-Prognose öffnen
+        </button>
+    </div>
+
+    <section class="contact-content">
+        <div class="row g-4">
+
+            <div class="col-lg-5">
+                <div class="contact-card h-100">
+                    <h3 class="gold mb-4">AutoPrice AI Support</h3>
+
+                    <div class="support-item">
+                        <h5>
+                            <a href="mailto:YOUR_EMAIL@gmail.com" class="email-link">E-Mail</a>
+                        </h5>
+                        <p>Schreiben Sie uns eine E-Mail und erhalten Sie eine schnelle Antwort.</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="support-item">
+                        <h5>KI-gestützte Analysen</h5>
+                        <p>Moderne Machine-Learning-Modelle für Preis- und Zufriedenheitsprognosen.</p>
+                    </div>
+
+                    <div class="support-item">
+                        <h5>KI-Assistent</h5>
+                        <p>Unser intelligenter KI-Assistent unterstützt Sie bei Fahrzeuganalysen.</p>
+                    </div>
+
+                    <div class="support-item">
+                        <h5>Schnelle Antworten</h5>
+                        <p>Erhalten Sie Preis- und Zufriedenheitsprognosen in wenigen Sekunden.</p>
+                    </div>
+
+                    <div class="support-item">
+                        <h5>Sichere Datenverarbeitung</h5>
+                        <p>Ihre Fahrzeugdaten werden vertraulich und sicher verarbeitet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="contact-card">
+                    <div class="alert alert-info mb-4">
+                         Für eine genaue Preis- und Zufriedenheitsprognose beschreiben Sie bitte Ihr Fahrzeug
+                         mit Marke, Modell, Kraftstoff, Getriebe und Hubraum.
+                    </div>
+                    <form id="contactForm">
+
+                        <label>Name *</label>
+                        <input class="form-control mb-3" type="text" name="name" placeholder="Ihr Name" required>
+
+                        <label>E-Mail *</label>
+                        <input class="form-control mb-3" type="email" name="email" placeholder="Ihre E-Mail-Adresse" required>
+
+                        <label>Betreff *</label>
+                        <input class="form-control mb-3" type="text" name="subject" placeholder="Worum geht es?" required>
+
+                        <label>Nachricht *</label>
+                        <textarea
+                            class="form-control mb-4"
+                            name="message"
+                            rows="6"
+                            placeholder="Beschreiben Sie Ihr Fahrzeug bitte in einem vollständigen Satz. Beispiel: Ich möchte eine Prognose für einen Audi A4 mit Benzin, Automatikgetriebe und 2.0 Liter Hubraum erhalten."
+                            required>
+                            </textarea>
+
+                        <button id="submitBtn" class="btn btn-gold btn-lg w-100" type="submit">
+                            KI-Prognose erstellen
+                        </button>
+
+                        <h3 id="successMessage" class="gold text-center mb-4" style="display:none;"></h3>
+
+                        <div id="contactVorhersageResult" class="contact-ai-result mt-4" style="display:none;">
+                            <h4 class="gold">KI-Fahrzeuganalyse</h4>
+                            <p id="aiAnswerText"></p>
+                            <div id="aiPriceBox" class="contact-price mt-3"></div>
+                        </div>
+
+                        <div id="contactSatisfactionResult" class="contact-ai-result mt-4" style="display:none;">
+                            <h4 class="gold">KI-Zufriedenheitsprognose</h4>
+                            <div id="aiSatisfactionBox" class="contact-price mt-3"></div>
+                            <p id="aiSatisfactionProbability" class="satisfaction-probability"></p>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>AutoPredict AI © 2026</p>
+        <p>Machine-Learning-Plattform zur Fahrzeugbewertung</p>
+    </footer>
+
+</div>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const resultBox = document.getElementById("contactVorhersageResult");
+    const answerText = document.getElementById("aiAnswerText");
+    const priceBox = document.getElementById("aiPriceBox");
+    const submitBtn = document.getElementById("submitBtn");
+
+    resultBox.style.display = "block";
+    answerText.innerHTML = "Bitte warten... Die Prognose wird erstellt.";
+    priceBox.innerHTML = "";
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch("/api/contact-predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.querySelector('[name="name"]').value,
+                email: document.querySelector('[name="email"]').value,
+                subject: document.querySelector('[name="subject"]').value,
+                message: document.querySelector('[name="message"]').value
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+            document.getElementById("successMessage").style.display = "block";
+            document.getElementById("successMessage").innerHTML = result.answer;
+
+            answerText.innerHTML = "";
+
+            priceBox.innerHTML =
+                "Geschätzter Preis: " +
+                Number(result.predicted_price_euro).toLocaleString("de-DE") +
+                " €";
+
+            document.getElementById("contactSatisfactionResult").style.display = "block";
+
+            document.getElementById("aiSatisfactionBox").innerHTML =
+                result.predicted_satisfaction_label;
+
+            document.getElementById("aiSatisfactionProbability").innerHTML =
+                "Wahrscheinlichkeit für zufrieden: " +
+                Number(result.satisfaction_probability_percent).toFixed(2) + "%";
+        } else {
+            answerText.innerHTML = `<div class="bot-message1">${result.message}</div>`;
+            priceBox.innerHTML = "";
+            document.getElementById("contactSatisfactionResult").style.display = "none";
+        }
+
+    } catch (error) {
+        answerText.innerHTML = "Fehler beim Verbinden mit Flask API: " + error.message;
+        priceBox.innerHTML = "";
+    }
+
+    submitBtn.disabled = false;
+});
+</script>
+
+<div id="wizardModal" class="wizard-overlay" style="display:none;">
+    <div class="wizard-box">
+
+        <div id="step1">
+            <h2 class="gold">Willkommen</h2>
+            <p style="margin-bottom:300px">
+                Willkommen zum Formular für Preis- und Zufriedenheitsprognose.
+            </p>
+
+            <button class="btn btn-gold mt-3" onclick="nextStep(2)">Weiter</button>
+        </div>
+
+        <div id="step2" style="display:none;">
+            <h3>Bitte wählen Sie die Marke aus</h3>
+
+            <select id="wizardMarke" class="form-select mt-3" style="margin-bottom:300px">
+                <option value="Audi">Audi</option>
+                <option value="Bmw">BMW</option>
+                <option value="Mercedes-Benz">Mercedes-Benz</option>
+                <option value="Opel">Opel</option>
+                <option value="Volkswagen">Volkswagen</option>
+            </select>
+
+            <button class="btn btn-secondary mt-3" onclick="nextStep(1)">Zurück</button>
+            <button class="btn btn-gold mt-3" onclick="nextStep(3)">Weiter</button>
+        </div>
+
+        <div id="step3" style="display:none;">
+            <h3>Bitte wählen Sie das Modell aus</h3>
+
+            <select id="wizardModell" class="form-select mt-3" style="margin-bottom:300px"></select>
+
+            <button class="btn btn-secondary mt-3" onclick="nextStep(2)">Zurück</button>
+            <button class="btn btn-gold mt-3" onclick="nextStep(4)">Weiter</button>
+        </div>
+
+        <div id="step4" style="display:none;">
+            <h3>Bitte wählen Sie den Kraftstoff aus</h3>
+
+            <select id="wizardKraftstoff" class="form-select mt-3" style="margin-bottom:300px">
+                <option value="Benzin">Benzin</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Elektro">Elektro</option>
+                <option value="Hybrid">Hybrid</option>
+            </select>
+
+            <button class="btn btn-secondary mt-3" onclick="nextStep(3)">Zurück</button>
+            <button class="btn btn-gold mt-3" onclick="nextStep(5)">Weiter</button>
+        </div>
+
+        <div id="step5" style="display:none;">
+            <h3>Bitte wählen Sie das Getriebe aus</h3>
+
+            <select id="wizardGetriebe" class="form-select mt-3" style="margin-bottom:300px">
+                <option value="Automatik">Automatik</option>
+                <option value="Manuell">Manuell</option>
+            </select>
+
+            <button class="btn btn-secondary mt-3" onclick="nextStep(4)">Zurück</button>
+            <button class="btn btn-gold mt-3" onclick="nextStep(6)">Weiter</button>
+        </div>
+
+        <div id="step6" style="display:none;">
+            <h3>Bitte geben Sie den Hubraum ein</h3>
+
+            <input id="wizardHubraum" class="form-control mt-3" type="number" step="0.1" value="2.0" style="margin-bottom:300px">
+
+            <button class="btn btn-secondary mt-3" onclick="nextStep(5)">Zurück</button>
+            <button class="btn btn-gold mt-3" onclick="submitWizard()">Senden</button>
+        </div>
+
+        <button class="btn btn-secondary mt-4" onclick="closeWizard()">Schließen</button>
+
+    </div>
+</div>
+
+<div id="resultModal" class="wizard-overlay" style="display:none;">
+    <div class="wizard-box">
+
+        <h2 class="gold">Analyse erfolgreich durchgeführt</h2>
+
+        <p id="wizardPrice" class="contact-price mt-4"></p>
+        <p id="wizardSatisfaction" class="contact-price mt-3"></p>
+        <p id="wizardSatisfactionProbability" class="satisfaction-probability"></p>
+
+        <button class="btn btn-secondary w-100 mt-4" onclick="backToWizard()">
+            Zurück zum Formular
+        </button>
+
+        <button class="btn btn-gold mt-3" onclick="closeResultModal()">
+            Schließen
+        </button>
+
+    </div>
+</div>
+
+<script>
+const wizardModelleNachMarke = {
+    "Audi": ["A4", "A6", "Q5"],
+    "Bmw": ["5Er", "I4", "X5"],
+    "Mercedes-Benz": ["C-Klasse", "E-Klasse", "Glc", "Eqe"],
+    "Opel": ["Astra", "Corsa", "Mokka", "Grandland"],
+    "Volkswagen": ["Golf", "Passat", "Tiguan", "Id.4"]
+};
+
+function updateWizardModelle() {
+    const markeSelect = document.getElementById("wizardMarke");
+    const modellSelect = document.getElementById("wizardModell");
+
+    const selectedMarke = markeSelect.value;
+    const modelle = wizardModelleNachMarke[selectedMarke];
+
+    modellSelect.innerHTML = "";
+
+    modelle.forEach(function(modell) {
+        const option = document.createElement("option");
+        option.value = modell;
+        option.textContent = modell;
+        modellSelect.appendChild(option);
+    });
+}
+
+function openWizard() {
+    document.getElementById("wizardModal").style.display = "flex";
+    updateWizardModelle();
+    nextStep(1);
+}
+
+function closeWizard() {
+    document.getElementById("wizardModal").style.display = "none";
+}
+
+function nextStep(step) {
+    for (let i = 1; i <= 6; i++) {
+        document.getElementById("step" + i).style.display = "none";
+    }
+
+    if (step === 3) {
+        updateWizardModelle();
+    }
+
+    document.getElementById("step" + step).style.display = "block";
+}
+
+document.getElementById("wizardMarke").addEventListener("change", updateWizardModelle);
+
+async function submitWizard() {
+    const data = {
+        marke: document.getElementById("wizardMarke").value,
+        modell: document.getElementById("wizardModell").value,
+        kraftstoff: document.getElementById("wizardKraftstoff").value,
+        getriebe: document.getElementById("wizardGetriebe").value,
+        hubraum_l: parseFloat(document.getElementById("wizardHubraum").value)
+    };
+
+    const priceResponse = await fetch("/api/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const priceResult = await priceResponse.json();
+
+    const satisfactionResponse = await fetch("/api/predict-satisfaction", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    const satisfactionResult = await satisfactionResponse.json();
+
+    document.getElementById("wizardModal").style.display = "none";
+    document.getElementById("resultModal").style.display = "flex";
+
+    if (priceResult.status === "success") {
+        document.getElementById("wizardPrice").innerHTML =
+            "Geschätzter Preis: " +
+            Number(priceResult.predicted_price_euro).toLocaleString("de-DE") +
+            " €";
+    } else {
+        document.getElementById("wizardPrice").innerHTML = "Preisprognose fehlgeschlagen";
+    }
+
+    if (satisfactionResult.status === "success") {
+        document.getElementById("wizardSatisfaction").innerHTML =
+            "Zufriedenheit: " +
+            satisfactionResult.predicted_satisfaction_label;
+
+        document.getElementById("wizardSatisfactionProbability").innerHTML =
+            "Wahrscheinlichkeit für zufrieden: " +
+            Number(satisfactionResult.satisfaction_probability_percent).toFixed(2) +
+            "%";
+    } else {
+        document.getElementById("wizardSatisfaction").innerHTML =
+            "Zufriedenheitsprognose fehlgeschlagen";
+        document.getElementById("wizardSatisfactionProbability").innerHTML = "";
+    }
+}
+
+function closeResultModal() {
+    document.getElementById("resultModal").style.display = "none";
+}
+
+function backToWizard() {
+    document.getElementById("resultModal").style.display = "none";
+    document.getElementById("wizardModal").style.display = "flex";
+    updateWizardModelle();
+    nextStep(1);
+}
+</script>
+
+</body>
+</html>

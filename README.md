@@ -97,40 +97,39 @@ python -m email_pipeline.main
 =======
 # 🌐 Web Application
 
-Mithilfe von Streamlit wurde eine einfache Weboberfläche entwickelt. Die Anwendung ermöglicht es den Nutzern, Fahrzeugparameter einzugeben und auf der Grundlage des trainierten Modells für maschinelles Lernen eine Preisprognose für das Fahrzeug zu erhalten.
+Die Webanwendung wurde mit Flask, HTML, CSS und JavaScript entwickelt.  
+Sie ermöglicht Nutzern die Eingabe von Fahrzeugdaten und erstellt mithilfe trainierter Machine-Learning-Modelle sowohl eine Fahrzeugpreisprognose als auch eine Vorhersage der Kundenzufriedenheit.
+
+Zusätzlich verfügt die Anwendung über ein mehrstufiges Eingabeformular, eine Kontaktseite mit KI-Analyse sowie einen integrierten Chatbot, der Fahrzeuginformationen aus Nutzereingaben erkennt und passende Prognosen ausgibt.
 
 ## Run the Application
 
 Wechseln Sie in das Stammverzeichnis des Projekts und führen Sie folgenden Befehl aus:
 
 ```bash
-streamlit run app.py
+python app.py
 ```
 
-Nach dem Start der Anwendung öffnet Streamlit automatisch ein Browserfenster.
+Nach dem Start der Anwendung kann die Webanwendung im Browser unter folgender Adresse geöffnet werden:
 
-Falls dies nicht automatisch geschieht, rufen Sie die im Terminal angezeigte URL auf, zum Beispiel:
-
-```text
-http://localhost:8501
-```
+http://localhost:5005
 
 ## Verwendung der Anwendung
 
-1. Wählen Sie das gewünschte Machine-Learning-Modell aus.
-2. Geben Sie die Fahrzeugparameter ein.
-3. Klicken Sie auf die Schaltfläche „Vorhersage“.
-4. Der geschätzte Fahrzeugpreis wird auf dem Bildschirm angezeigt.
+Die Webanwendung bietet mehrere Funktionen:
 
-## Verfügbare Modelle
+1. Fahrzeugpreis vorhersagen
+2. Kundenzufriedenheit vorhersagen
+3. KI-gestützte Fahrzeuganalyse über das Kontaktformular
+4. Mehrstufiges Eingabeformular zur Prognose
+5. Integrierter Chatbot zur Analyse von Fahrzeuginformationen
 
-Die Anwendung unterstützt die folgenden trainierten Modelle:
+Benutzer können Fahrzeugdaten eingeben und erhalten innerhalb weniger Sekunden eine Preis- und Zufriedenheitsprognose.
 
-- Lineare Regression
-- Random-Forest-Regressor
-- Gradient-Boosting-Regressor
+## Verwendete Machine-Learning-Modelle
 
-Benutzer können die Vorhersagen verschiedener Modelle direkt über die Benutzeroberfläche vergleichen.
+- Random Forest Regressor für die Fahrzeugpreisprognose
+- Decision Tree Classifier für die    Kundenzufriedenheitsprognose
 
 ## Datenschutz & Datenquelle
 
