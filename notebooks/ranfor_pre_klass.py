@@ -24,36 +24,23 @@ from db.data_loader import load_data
 # 1. LOAD DATA
 # ==================================================
 
-df = load_data()
-df = df.copy()
+df = load_data().copy()
 
-print("Dataset shape:", df.shape)
-
-
-# ==================================================
-# 2. FEATURE ENGINEERING (safe)
-# ==================================================
-
-CURRENT_YEAR = 2026
-
-if "baujahr" in df.columns:
-    df["age"] = CURRENT_YEAR - df["baujahr"]
-
-if "kilometerstand" in df.columns and "age" in df.columns:
-    df["km_per_year"] = df["kilometerstand"] / (df["age"] + 1)
+print(f"Dataset shape: {df.shape}")
 
 
 # ==================================================
-# 3. OUTLIERS
+# 2. REMOVE EXTREME OUTLIERS
 # ==================================================
 
 df = df[df["preis_euro"] > 1000]
+
 q99 = df["preis_euro"].quantile(0.99)
 df = df[df["preis_euro"] <= q99]
 
 
 # ==================================================
-# 4. FEATURE SET
+# 3. FEATURES (ONLY YOUR FEATURES)
 # ==================================================
 
 FEATURES = [
@@ -63,11 +50,10 @@ FEATURES = [
     "getriebe",
     "bundesland",
     "wochentag",
-    "hubraum_l",
     "verkaufszahl",
-    "kundenzufriedenheit",
-    "age",
-    "km_per_year"
+    "hubraum_l",
+    "jahr",
+    "monat"
 ]
 
 FEATURES = [f for f in FEATURES if f in df.columns]
@@ -76,17 +62,26 @@ X = df[FEATURES]
 
 
 # ==================================================
-# 5. CATEGORICAL FEATURES
+# 4. CATEGORICAL FEATURES
 # ==================================================
 
-cat_features = [
-    c for c in ["marke", "modell", "kraftstoff", "getriebe", "bundesland", "wochentag"]
-    if c in FEATURES
+CATEGORICAL_FEATURES = [
+    "marke",
+    "modell",
+    "kraftstoff",
+    "getriebe",
+    "bundesland",
+    "wochentag"
+]
+
+CATEGORICAL_FEATURES = [
+    f for f in CATEGORICAL_FEATURES
+    if f in FEATURES
 ]
 
 
 # ==================================================
-# 6. PREPROCESSOR (YOUR WORKING VERSION)
+# 5. PREPROCESSOR
 # ==================================================
 
 preprocessor = ColumnTransformer(
@@ -94,7 +89,7 @@ preprocessor = ColumnTransformer(
         (
             "cat",
             OneHotEncoder(handle_unknown="ignore"),
-            cat_features
+            CATEGORICAL_FEATURES
         )
     ],
     remainder="passthrough"
@@ -103,51 +98,61 @@ preprocessor = ColumnTransformer(
 
 # ==================================================
 # ==================================================
-# 🔥 7A. BINARY CLASSIFICATION
+# 6A. BINARY CLASSIFICATION
+# Hochpreis vs Rest
 # ==================================================
 # ==================================================
 
 df_bin = df.copy()
 
-df_bin["target"] = (df_bin["preis_euro"] > 79716).astype(int)
+df_bin["target"] = (
+    df_bin["preis_euro"] >= 79716
+).astype(int)
 
 X_bin = df_bin[FEATURES]
 y_bin = df_bin["target"]
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X_bin, y_bin,
+    X_bin,
+    y_bin,
     test_size=0.2,
     random_state=42,
     stratify=y_bin
 )
 
-model_bin = Pipeline([
-    ("preprocess", preprocessor),
-    ("rf", RandomForestClassifier(
-        n_estimators=300,
-        max_depth=12,
-        random_state=42,
-        n_jobs=-1,
-        class_weight="balanced"
-    ))
-])
+rf_bin = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        (
+            "classifier",
+            RandomForestClassifier(
+                n_estimators=300,
+                random_state=42,
+                n_jobs=-1,
+                class_weight="balanced"
+            )
+        )
+    ]
+)
 
-model_bin.fit(X_train, y_train)
+rf_bin.fit(X_train, y_train)
 
-pred_bin = model_bin.predict(X_test)
+y_pred = rf_bin.predict(X_test)
 
 print("\n========== RF 2-CLASS ==========")
-print("Accuracy:", accuracy_score(y_test, pred_bin))
-print(classification_report(y_test, pred_bin))
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
 
 
 # ==================================================
 # ==================================================
-# 🔥 7B. MULTICLASS (3 CLASS)
+# 6B. MULTI-CLASS CLASSIFICATION
+# Niedrigpreis / Mittelklasse / Hochpreis
 # ==================================================
 # ==================================================
 
 df_multi = df.copy()
+
 
 def make_segment(price):
     if price < 48545:
@@ -158,33 +163,41 @@ def make_segment(price):
         return 2
 
 
-df_multi["target"] = df_multi["preis_euro"].apply(make_segment)
+df_multi["target"] = (
+    df_multi["preis_euro"]
+    .apply(make_segment)
+)
 
 X_multi = df_multi[FEATURES]
 y_multi = df_multi["target"]
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X_multi, y_multi,
+    X_multi,
+    y_multi,
     test_size=0.2,
     random_state=42,
     stratify=y_multi
 )
 
-model_multi = Pipeline([
-    ("preprocess", preprocessor),
-    ("rf", RandomForestClassifier(
-        n_estimators=400,
-        max_depth=14,
-        random_state=42,
-        n_jobs=-1,
-        class_weight="balanced_subsample"
-    ))
-])
+rf_multi = Pipeline(
+    steps=[
+        ("preprocessor", preprocessor),
+        (
+            "classifier",
+            RandomForestClassifier(
+                n_estimators=300,
+                random_state=42,
+                n_jobs=-1,
+                class_weight="balanced_subsample"
+            )
+        )
+    ]
+)
 
-model_multi.fit(X_train, y_train)
+rf_multi.fit(X_train, y_train)
 
-pred_multi = model_multi.predict(X_test)
+y_pred = rf_multi.predict(X_test)
 
 print("\n========== RF 3-CLASS ==========")
-print("Accuracy:", accuracy_score(y_test, pred_multi))
-print(classification_report(y_test, pred_multi))
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
