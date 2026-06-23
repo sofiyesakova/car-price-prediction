@@ -3,10 +3,6 @@ import torch
 import ast
 import re
 
-# ==================================================
-# MODEL
-# ==================================================
-
 MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 
 print("Loading TinyLlama...")
@@ -15,36 +11,34 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME,
-    dtype=torch.float32,
     device_map="auto",
+    torch_dtype=torch.float32,
     low_cpu_mem_usage=True
 )
 
 model.eval()
 
 
-# ==================================================
-# LLM EXTRACTION
-# ==================================================
-
 def extract_with_llm(email_text: str):
 
     prompt = f"""
 Extract car information from this email.
 
-Return ONLY a Python dictionary.
+Return ONLY a valid Python dictionary.
 
-Example:
+Rules:
+- Use None if missing
+- Return ONLY dictionary
 
+Format:
 {{
-    'datum': None,
-    'marke': 'Volkswagen',
-    'modell': 'ID.4',
-    'kraftstoff': 'Elektro',
-    'getriebe': 'Automatik',
-    'hubraum_l': 1.2,
-    'verkaufszahl': 10,
-    'kundenzufriedenheit': 4.5
+    'marke': None,
+    'modell': None,
+    'kraftstoff': None,
+    'getriebe': None,
+    'bundesland': None,
+    'verkaufszahl': None,
+    'hubraum_l': None
 }}
 
 Email:
@@ -53,12 +47,7 @@ Email:
 Dictionary:
 """
 
-    messages = [
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ]
+    messages = [{"role": "user", "content": prompt}]
 
     inputs = tokenizer.apply_chat_template(
         messages,
@@ -80,34 +69,21 @@ Dictionary:
         skip_special_tokens=True
     ).strip()
 
-    # print("\nLLM OUTPUT:")
-    # print(text)
-
     return safe_dict_parse(text)
-
-
-# ==================================================
-# SAFE DICT PARSER
-# ==================================================
-
-import ast
-import re
 
 
 def safe_dict_parse(text):
 
     DEFAULT_DATA = {
-        "datum": None,
         "marke": None,
         "modell": None,
         "kraftstoff": None,
         "getriebe": None,
-        "hubraum_l": None,
+        "bundesland": None,
         "verkaufszahl": None,
-        "kundenzufriedenheit": None
+        "hubraum_l": None
     }
 
-    # ищем первую структуру вида {...}
     match = re.search(r"\{[\s\S]*?\}", text)
 
     if not match:
@@ -115,7 +91,6 @@ def safe_dict_parse(text):
 
     raw = match.group()
 
-    # Fehler vermeiden
     raw = raw.replace("null", "None")
     raw = raw.replace("true", "True")
     raw = raw.replace("false", "False")
@@ -123,11 +98,9 @@ def safe_dict_parse(text):
     try:
         data = ast.literal_eval(raw)
 
-        # убеждаемся, что получили словарь
         if not isinstance(data, dict):
             return DEFAULT_DATA
 
-        # добавляем отсутствующие ключи
         for key in DEFAULT_DATA:
             data.setdefault(key, None)
 

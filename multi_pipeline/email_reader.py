@@ -1,5 +1,6 @@
 import imaplib
 import email
+from datetime import datetime
 from .config import EMAIL_ADDRESS, EMAIL_APP_PASSWORD
 
 
@@ -34,4 +35,20 @@ def read_latest_email():
     else:
         body = msg.get_payload(decode=True).decode()
 
-    return body
+    # ==================================================
+    # FIX: EXTRACT DATE
+    # ==================================================
+
+    date_tuple = email.utils.parsedate_tz(msg["Date"])
+    received_datetime = datetime.fromtimestamp(
+        email.utils.mktime_tz(date_tuple)
+    )
+
+    # ==================================================
+    # RETURN STRUCTURED OBJECT
+    # ==================================================
+
+    return {
+        "body": body,
+        "received_datetime": received_datetime
+    }
