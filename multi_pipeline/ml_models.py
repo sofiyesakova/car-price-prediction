@@ -17,8 +17,8 @@ warnings.filterwarnings(
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_DIR = BASE_DIR / "models"
 
-# REGRESSION
-price_model = joblib.load(MODEL_DIR / "linear_regression.pkl")
+# RANDOM FOREST (PRICE)
+price_model = joblib.load(MODEL_DIR / "random_forest_5features.pkl")
 
 # CLASSIFICATION (SATISFACTION)
 satisfaction_model = joblib.load(

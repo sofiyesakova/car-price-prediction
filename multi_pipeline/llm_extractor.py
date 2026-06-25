@@ -1,19 +1,18 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-import ast
+import json
 import re
 
-MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+MODEL_NAME = "Qwen/Qwen2.5-3B-Instruct"
 
-print("Loading TinyLlama...")
+print("Loading Qwen2.5...")
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_NAME,
     device_map="auto",
-    torch_dtype=torch.float32,
-    low_cpu_mem_usage=True
+    torch_dtype=torch.float16
 )
 
 model.eval()
@@ -22,89 +21,87 @@ model.eval()
 def extract_with_llm(email_text: str):
 
     prompt = f"""
-Extract car information from this email.
+You are a strict data extraction system.
 
-Return ONLY a valid Python dictionary.
+Return ONLY valid JSON.
+
+Schema:
+{{
+  "datum": null,
+  "marke": null,
+  "modell": null,
+  "kraftstoff": null,
+  "getriebe": null,
+  "hubraum_l": null,
+  "verkaufszahl": null,
+  "kundenzufriedenheit": null
+}}
 
 Rules:
-- Use None if missing
-- Return ONLY dictionary
-
-Format:
-{{
-    'marke': None,
-    'modell': None,
-    'kraftstoff': None,
-    'getriebe': None,
-    'bundesland': None,
-    'verkaufszahl': None,
-    'hubraum_l': None
-}}
+- no text
+- no explanation
+- only JSON
+- use null if unknown
 
 Email:
 {email_text}
 
-Dictionary:
+JSON:
 """
 
     messages = [{"role": "user", "content": prompt}]
 
     inputs = tokenizer.apply_chat_template(
         messages,
-        add_generation_prompt=True,
         tokenize=True,
+        add_generation_prompt=True,
         return_tensors="pt"
     ).to(model.device)
 
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            max_new_tokens=150,
+            max_new_tokens=120,
             do_sample=False,
+            temperature=0.0,
             pad_token_id=tokenizer.eos_token_id
         )
 
     text = tokenizer.decode(
         outputs[0][inputs["input_ids"].shape[-1]:],
         skip_special_tokens=True
-    ).strip()
+    )
 
-    return safe_dict_parse(text)
+    return safe_extract(text)
 
 
-def safe_dict_parse(text):
+def safe_extract(text: str):
 
-    DEFAULT_DATA = {
+    DEFAULT = {
+        "datum": None,
         "marke": None,
         "modell": None,
         "kraftstoff": None,
         "getriebe": None,
-        "bundesland": None,
+        "hubraum_l": None,
         "verkaufszahl": None,
-        "hubraum_l": None
+        "kundenzufriedenheit": None
     }
 
-    match = re.search(r"\{[\s\S]*?\}", text)
-
+    match = re.search(r"\{[\s\S]*\}", text)
     if not match:
-        return DEFAULT_DATA
+        return DEFAULT
 
     raw = match.group()
 
-    raw = raw.replace("null", "None")
-    raw = raw.replace("true", "True")
-    raw = raw.replace("false", "False")
-
     try:
-        data = ast.literal_eval(raw)
+        data = json.loads(raw)
+    except:
+        return DEFAULT
 
-        if not isinstance(data, dict):
-            return DEFAULT_DATA
+    result = DEFAULT.copy()
 
-        for key in DEFAULT_DATA:
-            data.setdefault(key, None)
+    for k in result:
+        result[k] = data.get(k, None)
 
-        return data
-
-    except Exception:
-        return DEFAULT_DATA
+    return result
