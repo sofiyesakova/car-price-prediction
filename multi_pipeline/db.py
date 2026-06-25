@@ -29,10 +29,6 @@ def save_to_db(
             verkaufszahl,
             hubraum_l,
 
-            jahr,
-            monat,
-            wochentag,
-
             predicted_price,
             predicted_zufriedenheit,
             predicted_category_2,
@@ -50,10 +46,6 @@ def save_to_db(
             :verkaufszahl,
             :hubraum_l,
 
-            :jahr,
-            :monat,
-            :wochentag,
-
             :price,
             :satisfaction,
             :category_2,
@@ -64,23 +56,19 @@ def save_to_db(
     payload = {
         "datum": datum,
 
-        "marke": data.get("marke"),
-        "modell": data.get("modell"),
-        "kraftstoff": data.get("kraftstoff"),
-        "getriebe": data.get("getriebe"),
-        "bundesland": data.get("bundesland"),
+        "marke": data.get("marke") or "unknown",
+        "modell": data.get("modell") or "unknown",
+        "kraftstoff": data.get("kraftstoff") or "unknown",
+        "getriebe": data.get("getriebe") or "unknown",
+        "bundesland": data.get("bundesland") or "unknown",
 
-        "verkaufszahl": data.get("verkaufszahl"),
-        "hubraum_l": data.get("hubraum_l"),
+        "verkaufszahl": float(data.get("verkaufszahl") or 0),
+        "hubraum_l": float(data.get("hubraum_l") or 0),
 
-        "jahr": data.get("jahr"),
-        "monat": data.get("monat"),
-        "wochentag": data.get("wochentag"),
-
-        "price": price,
-        "satisfaction": satisfaction,
-        "category_2": category_2,
-        "category_3": category_3
+        "price": float(price),
+        "satisfaction": int(satisfaction),
+        "category_2": int(category_2),
+        "category_3": int(category_3)
     }
 
     with engine.begin() as conn:

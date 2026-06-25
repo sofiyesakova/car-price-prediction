@@ -81,7 +81,7 @@ CATEGORICAL_FEATURES = [
 # ==================================================
 
 df["target"] = (
-    df["preis_euro"] >= 79716
+    df["preis_euro"] >= 75716
 ).astype(int)
 
 X = df[FEATURES]

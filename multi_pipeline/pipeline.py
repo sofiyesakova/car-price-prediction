@@ -10,78 +10,105 @@ from .ml_models import (
     price_category_text_3
 )
 from .db import save_to_db
-from datetime import datetime
 
 
 def run_pipeline():
 
-    print("Starting pipeline...\n")
+    try:
+        print("Starting pipeline...\n")
 
-    email = read_latest_email()
+        # ==================================================
+        # EMAIL
+        # ==================================================
 
-    if not email:
-        print("No new emails")
-        return
+        email = read_latest_email()
 
-    print("Email received ✔")
+        if not email:
+            print("No new emails")
+            return
 
-    # ==================================================
-    # 1. EXTRACT
-    # ==================================================
+        print("Email received ✔")
 
-    body = email["body"]
-    received_date = email["received_datetime"]
+        body = email["body"]
+        received_date = email["received_datetime"]
 
-    data = extract_with_llm(body)
-    print("Data extracted ✔")
+        # ==================================================
+        # 1. EXTRACT
+        # ==================================================
 
-    # ==================================================
-    # 2. TIME FEATURES
-    # ==================================================
+        data = extract_with_llm(body)
+        print("Data extracted ✔")
+        print("RAW DATA:", data)
 
-    data["jahr"] = received_date.year
-    data["monat"] = received_date.month
-    data["wochentag"] = received_date.strftime("%A")
+        # ==================================================
+        # 2. TIME FEATURES (FORCED SAFE)
+        # ==================================================
 
-    # ==================================================
-    # 3. ML
-    # ==================================================
+        data["jahr"] = received_date.year
+        data["monat"] = received_date.month
+        data["wochentag"] = received_date.weekday()
 
-    price = predict_price(data)
+        # ==================================================
+        # 3. CLEANING (CRITICAL FIX)
+        # ==================================================
 
-    sat_pred = predict_satisfaction(data)
-    sat_text = satisfaction_text(sat_pred)
+        # categorical safety
+        for k in ["marke", "modell", "kraftstoff", "getriebe", "bundesland"]:
+            if not data.get(k):
+                data[k] = "unknown"
 
-    cat2 = predict_price_category_2(data)
-    cat2_text = price_category_text_2(cat2)
+        # numeric safety
+        for k in ["verkaufszahl", "hubraum_l"]:
+            try:
+                data[k] = float(data.get(k) or 0)
+            except:
+                data[k] = 0
 
-    cat3 = predict_price_category_3(data)
-    cat3_text = price_category_text_3(cat3)
+        # ==================================================
+        # 4. ML
+        # ==================================================
 
-    # ==================================================
-    # 4. OUTPUT
-    # ==================================================
+        price = predict_price(data)
 
-    print("\n===== RESULTS =====")
-    print(f"Price: {price:.2f} €")
-    print(f"Kundenfreundlichkeit: {sat_text}")
-    print(f"Price Category (2-class): {cat2_text}")
-    print(f"Price Category (3-class): {cat3_text}")
+        sat_pred = predict_satisfaction(data)
+        sat_text = satisfaction_text(sat_pred)
 
-    # ==================================================
-    # 5. DB
-    # ==================================================
+        cat2 = predict_price_category_2(data)
+        cat2_text = price_category_text_2(cat2)
 
-    save_to_db(
-        data,
-        price,
-        sat_pred,
-        cat2,
-        cat3,
-        received_date
-    )
+        cat3 = predict_price_category_3(data)
+        cat3_text = price_category_text_3(cat3)
 
-    print("\nSaved to DB ✔")
+        # ==================================================
+        # 5. OUTPUT
+        # ==================================================
+
+        print("\n===== RESULTS =====")
+        print(f"Price: {price:.2f} €")
+        print(f"Kundenfreundlichkeit: {sat_text}")
+        print(f"Price Category (2-class): {cat2_text}")
+        print(f"Price Category (3-class): {cat3_text}")
+
+        # ==================================================
+        # 6. DB
+        # ==================================================
+
+        save_to_db(
+            data,
+            price,
+            sat_pred,
+            cat2,
+            cat3,
+            received_date
+        )
+
+        print("\nSaved to DB ✔")
+
+    except Exception as e:
+        print("\n❌ PIPELINE ERROR")
+        print("Error type:", type(e).__name__)
+        print("Error message:", str(e))
+        raise
 
 
 if __name__ == "__main__":

@@ -81,9 +81,9 @@ CATEGORICAL_FEATURES = [
 # ==================================================
 
 def make_segment(price):
-    if price < 48545:
+    if price < 42545:
         return 0
-    elif price < 79716:
+    elif price < 75716:
         return 1
     else:
         return 2
