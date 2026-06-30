@@ -62,7 +62,7 @@ def save_to_db(
         "getriebe": data.get("getriebe") or "unknown",
         "bundesland": data.get("bundesland") or "unknown",
 
-        "verkaufszahl": float(data.get("verkaufszahl") or 0),
+        "verkaufszahl": float(data.get("verkaufszahl") or 1),
         "hubraum_l": float(data.get("hubraum_l") or 0),
 
         "price": float(price),
