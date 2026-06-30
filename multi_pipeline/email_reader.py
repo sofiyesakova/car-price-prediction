@@ -36,7 +36,7 @@ def read_latest_email():
         body = msg.get_payload(decode=True).decode()
 
     # ==================================================
-    # FIX: EXTRACT DATE
+    # EXTRACT DATE
     # ==================================================
 
     date_tuple = email.utils.parsedate_tz(msg["Date"])

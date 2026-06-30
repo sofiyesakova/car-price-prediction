@@ -1,99 +1,87 @@
-# Car Sales
+# Car Sales – Machine Learning für den deutschen Fahrzeugmarkt
 
-## 1. Project description
+## 1. Projektbeschreibung
 
-## 2. Dataset Info
+Dieses Projekt kombiniert **Machine Learning** und **Large Language Models (LLMs)**, um Fahrzeugdaten automatisch zu analysieren und verschiedene Vorhersagen für den deutschen Automobilmarkt zu treffen.
 
-## 1. 📦 Installation
+Auf Basis von Fahrzeugmerkmalen können folgende Vorhersagen erstellt werden:
 
-1. Clone the repository:
+* **Fahrzeugpreis** (Regression)
+* **Kundenzufriedenheit** bzw. ob der Kunde mit dem Fahrzeug voraussichtlich zufrieden sein wird (Klassifikation)
+* **Marktsegment**, dem das Fahrzeug zugeordnet werden kann (Klassifikation)
 
-```bash
-git clone https://github.com/sofiyesakova/car-price-prediction
-cd car-price-prediction
-```
+Zusätzlich enthält das Projekt eine automatisierte E-Mail-Pipeline. Eingehende Fahrzeuganfragen werden mithilfe eines LLM analysiert, strukturierte Fahrzeugdaten extrahiert und anschließend an mehrere Machine-Learning-Modelle übergeben.
 
-2. Create virtual environment:
+---
 
-```bash
-python -m venv venv
-```
+## 2. Datensatz
 
-3. Activate virtual environment:
+Der verwendete Datensatz enthält **Verkaufsdaten neuer bzw. nahezu neuer deutscher Fahrzeuge**, die **in Deutschland in den Jahren 2024 und 2025** angeboten oder verkauft wurden.
 
-   Windows:
+Die Daten umfassen unter anderem:
 
-```bash
-venv\Scripts\activate
-```
+* Fahrzeugmarke und Modell
+* Kraftstoffart
+* Getriebe
+* Bundesland
+* Datum
+* Verkaufszahl
+* Hubraum
+* Kundenzufriedenheit
 
-Mac/Linux:
+---
 
-```bash
-source venv/bin/activate
-```
+## 3. Installation
 
-4. Install dependencies:
+Eine vollständige Installationsanleitung befindet sich in der Datei **INSTALL.md**.
 
-```bash
-pip install -r requirements.txt
-```
+---
 
-5. # Automatisierte E-Mail-Auswertung für Fahrzeugverkaufsdaten
+## 4. Automatisierte E-Mail-Verarbeitung
 
-## Projektbeschreibung
+Die Pipeline automatisiert die Verarbeitung eingehender E-Mails und verbindet ein Large Language Model mit mehreren Machine-Learning-Modellen.
 
-Dieses Projekt kombiniert Machine Learning und Large Language Models (LLMs), um eingehende E-Mails automatisch zu analysieren und Fahrzeugpreisdaten vorherzusagen.
-
-Der Workflow besteht aus mehreren Schritten:
+### Workflow
 
 1. Abruf ungelesener E-Mails über Gmail (IMAP)
-2. Extraktion strukturierter Informationen mittels Llama 3.1
-3. Umwandlung der Daten in ein tabellarisches Format
-4. Vorhersage des Fahrzeugpreises mit einem trainierten Machine-Learning-Modell
-5. Speicherung der Ergebnisse in einer PostgreSQL-Datenbank
+2. Extraktion strukturierter Fahrzeuginformationen mit einem LLM
+3. Umwandlung der Informationen in ein tabellarisches Format
+4. Übergabe der Daten an die Machine-Learning-Modelle
+5. Vorhersage von:
 
-## Verwendete Technologien
+   * Fahrzeugpreis
+   * Kundenzufriedenheit
+   * Marktsegment
+6. Speicherung der Ergebnisse in einer PostgreSQL-Datenbank
+
+---
+
+## 5. Verwendete Technologien
 
 * Python
 * Scikit-Learn
 * Transformers (Hugging Face)
 * Llama 3.1
+* Qwen / Qwen2.5-3B-Instruct
+* TinyLlama-1.1B-Chat-v1.0
 * PostgreSQL
 * SQLAlchemy
 * Gmail IMAP
-* Pandas und NumPy
+* Pandas
+* NumPy
 
-## Projektstruktur
+---
 
-* `email_pipeline/` – automatisierte E-Mail-Verarbeitung
+## 6. Projektstruktur
+
+* `email_pipeline/` – Verarbeitung eingehender E-Mails
+* `multi_pipeline/` – Multi-LLM-Pipeline. Ein Large Language Model analysiert eingehende E-Mails und übergibt die extrahierten Fahrzeugdaten an **vier trainierte Machine-Learning-Modelle**, die verschiedene Vorhersagen erzeugen.
 * `models/` – trainierte Machine-Learning-Modelle
-* `DB/` – Datenbankanbindung
-* `notebooks/` – Training und Experimente
+* `db/` – Datenbankstruktur und Datenbankanbindung
+* `data/` – Enthält die Rohdaten sowie die bereinigten Daten im CSV-Format
+* `notebooks/` – Datenanalyse, statistische Auswertung sowie Training und Evaluation der Machine-Learning-Modelle
 
-## Beispiel einer E-Mail
 
-Datum: 2026-06-16
-
-Marke: BMW
-
-Modell: X5
-
-Kraftstoff: Diesel
-
-Getriebe: Automatik
-
-Hubraum_l: 3.0
-
-Verkaufszahl: 4
-
-Kundenzufriedenheit: 5
-
-## Ausführung
-
-```bash
-python -m email_pipeline.main
-```
 =======
 # 🌐 Web Application
 
@@ -114,6 +102,8 @@ Nach dem Start der Anwendung kann die Webanwendung im Browser unter folgender Ad
 
 http://localhost:5005
 
+
+
 ## Verwendung der Anwendung
 
 Die Webanwendung bietet mehrere Funktionen:
@@ -126,139 +116,89 @@ Die Webanwendung bietet mehrere Funktionen:
 
 Benutzer können Fahrzeugdaten eingeben und erhalten innerhalb weniger Sekunden eine Preis- und Zufriedenheitsprognose.
 
-## Verwendete Machine-Learning-Modelle
+=======
 
-- Random Forest Regressor für die Fahrzeugpreisprognose
-- Decision Tree Classifier für die    Kundenzufriedenheitsprognose
+# 📊 Modellbewertung und Datenanalyse
 
-## Datenschutz & Datenquelle
+## 📌 Überblick
 
-Für dieses Projekt wird ein Datensatz verwendet, der auf öffentlich verfügbaren Statista-Daten zu Pkw-Neuzulassungen in Deutschland basiert. Die ursprünglichen Statistiken stammen vom Kraftfahrt-Bundesamt (KBA).
+Alle Machine-Learning-Modelle wurden auf demselben Feature-Set trainiert und miteinander verglichen.
+Ziel war die Vorhersage des Fahrzeugpreises sowie der Kundenzufriedenheit auf Basis strukturierter Fahrzeugdaten.
 
-Der Datensatz enthält keine personenbezogenen Daten wie Namen, Telefonnummern, E-Mail-Adressen oder Adressen. Es werden ausschließlich aggregierte Fahrzeug- und Marktdaten verwendet.
+## 📂 Datenbasis
 
-Daher ist die Nutzung des Datensatzes DSGVO-konform und für Analyse- und Lernzwecke im Rahmen des Projekts geeignet.
+Der verwendete Datensatz basiert auf öffentlich verfügbaren Statista-Daten zum deutschen Pkw-Markt, die ursprünglich auf Daten des Kraftfahrt-Bundesamts (KBA) beruhen.
 
-# 📊 Modellbewertung der Ergebnisse
+👉 Quelle: https://de.statista.com/statistik/daten
 
-## 🔍 Vergleich der Modelle
+📌 Wichtige Eigenschaften des Datensatzes:
+Enthält ausschließlich neue oder nahezu neue Fahrzeuge
+Fokus auf Markt- und Verkaufsdaten (2024–2025, Deutschland)
+Keine Informationen zu:
+   Baujahr
+   Kilometerstand
 
-Alle Modelle wurden mit demselben Feature-Set trainiert:
+👉 Dadurch basiert die Modellierung auf Marktmerkmalen statt Fahrzeuglebenszyklus-Daten.
 
-- `marke`
-- `modell`
+## 📊 Modell-Setup
 
-Folgende Modelle wurden evaluiert:
+Für die Vorhersagen wurden folgende Modelle verwendet:
 
-- Lineare Regression
-- Random Forest
-- Gradient Boosting
+   Lineare Regression (Baseline)
+   Random Forest Regressor
+   Gradient Boosting Regressor
+   Decision Tree Classifier (Kundenzufriedenheit)
 
-### Ergebnisse:
+## 📈 Ergebnisse
 
-| Modell             |      MAE |     RMSE |     R² |
-| ------------------ | -------: | -------: | -----: |
-| Lineare Regression | 13452.22 | 16423.23 | 0.6003 |
-| Gradient Boosting  | 13452.24 | 16423.20 | 0.6003 |
-| Random Forest      | 13459.48 | 16416.15 | 0.6007 |
+Alle Modelle wurden mit denselben Features trainiert (z. B. Marke, Modell und weitere verfügbare Marktmerkmale).
 
----
+Modell	            MAE	       RMSE	      R²
+Lineare Regression	13452.22	   16423.23 	0.6003
+Gradient Boosting	   13452.24	   16423.20	   0.6003
+Random Forest	      13459.48	   16416.15	   0.6007
 
-## 🏆 Bestes Modell
+👉 Bestes Modell: Random Forest Regressor    
 
-Das beste Modell ist:
+      R² ≈ 0.60
 
-**Random Forest Regressor**
+## 📂 Analyse-Dateien
 
-- **MAE:** 13.459,48
-- **RMSE:** 16.416,15
-- **R²:** 0.6007
+Die detaillierte Analyse und Visualisierungen befinden sich in folgenden Dateien:
 
-Die Unterschiede zwischen den Modellen sind jedoch sehr gering.
+notebooks/Data_clearning.ipynb
+notebooks/descriptive_statistics.ipynb
+notebooks/Inferenzstatistik.ipynb
+notebooks/Einflussanalyse_Preis_Euro.ipynb
+notebooks/Einflussanalyse_Kundzufrid.ipynb
+notebooks/Einflussanalyse_Preissegmenten.ipynb
 
----
 
-# 📈 Interpretation der Ergebnisse
+## 📌 Interpretation (Kurzfassung)
 
-## ⚠️ Zentrale Beobachtung
+   Alle Modelle erreichen ähnliche Ergebnisse (R² ≈ 0.60)
+   Das Fahrzeugmodell ist der stärkste Einflussfaktor
+   Zusätzliche Features haben nur geringe Vorhersagekraft
+   Der limitierende Faktor ist die Datenbasis, nicht das Modell
 
-Alle getesteten Modelle zeigen nahezu identische Ergebnisse:
+## 🚀 Fazit
 
-- R² ≈ **0.60**
-- MAE ≈ **13.400–13.500**
-- RMSE ≈ **16.400**
+   Solide Modellleistung für Marktbasierte Daten
+   Gute Vorhersage auf aggregierter Ebene möglich
+   Keine signifikanten Unterschiede zwischen Modellen
 
-Das zeigt eindeutig, dass die Modellwahl nur einen sehr geringen Einfluss auf die Performance hat.
+## 🔮 Zukünftige Verbesserungen
 
----
+Für zukünftige Versionen sind folgende Erweiterungen geplant:
 
-## 🧠 Warum ist die Leistung begrenzt?
+Integration zusätzlicher Fahrzeugdaten:
+      Kilometerstand
+      Baujahr
+      Motorleistung (PS)
+      Zustand / Ausstattung
+      Erweiterung der Datengrundlage über mehrere Jahre
+      Entwicklung einer Preisrange-Vorhersage:
+         minimal erwartbarer Preis
+         maximal erwartbarer Preis
 
-### 1. Starke Dominanz des Features `modell`
-
-Das Fahrzeugmodell erklärt bereits einen großen Teil der Preisvariation.
-
-Jedes Modell hat einen relativ stabilen durchschnittlichen Preisbereich, zum Beispiel:
-
-- `Corsa` → ~29.000 €
-- `Passat` → ~42.000 €
-- `E-Klasse` → ~82.000 €
-
-👉 Das bedeutet, dass das Modell bereits den größten Teil des Preissignals enthält.
-
----
-
-### 2. Geringer Einfluss der anderen Features
-
-Andere verfügbare Merkmale (z. B. Kraftstoffart, Getriebe, Verkaufszahl, Kundenzufriedenheit usw.) zeigen **sehr geringe oder nahezu keine Korrelation mit dem Zielwert (Preis)**.
-
-In der Praxis bedeutet das:
-
-> Diese Features tragen nur minimal zur Erklärung der Preisunterschiede bei.
-
-Daher verbessert ihre Nutzung die Modellleistung kaum.
-
----
-
-### 3. Hohe Streuung innerhalb desselben Modells
-
-Selbst innerhalb eines Fahrzeugmodells gibt es große Preisunterschiede:
-
-- C-Klasse: ±18.000 €
-- E-Klasse: ±22.000 €
-
-Diese Variabilität kann mit den aktuellen Features nicht vollständig erklärt werden.
-
----
-
-### 4. Das Modell ist nicht der limitierende Faktor
-
-Da alle Modelle nahezu gleich gut performen, zeigt sich:
-
-> Die Begrenzung liegt in den Daten, nicht in den Algorithmen.
-
-Komplexere Modelle können die Leistung nicht verbessern, wenn keine zusätzlichen relevanten Features vorhanden sind.
-
----
-
-# 📌 Fazit
-
-- Alle Modelle erreichen ein Leistungsplateau bei ca. R² = 0.60
-- Das Feature `modell` ist der wichtigste Prädiktor
-- Weitere Features haben nur geringe Vorhersagekraft
-- Die Modellwahl hat kaum Einfluss auf die Endleistung
-
----
-
-# 🚀 Zukünftige Verbesserungen
-
-Um die Vorhersagequalität zu verbessern, sollten zusätzliche relevante Merkmale integriert werden:
-
-- Kilometerstand
-- Motorleistung (PS)
-- Fahrzeugzustand
-- Anzahl der Vorbesitzer
-- Ausstattung / Trim-Level
-- Unfallhistorie
-
-Diese Merkmale würden die Modellgenauigkeit voraussichtlich deutlich erhöhen.
+ 👉 Ziel: realistischere Marktpreis-Spanne statt einzelner Punktprognose

@@ -25,7 +25,7 @@ satisfaction_model = joblib.load(
     MODEL_DIR / "customer_satisfaction_tree.pkl"
 )
 
-# NEW: PRICE CATEGORY MODELS
+# PRICE CATEGORY MODELS
 price_category_model_2 = joblib.load(
     MODEL_DIR / "random_forest_fahrzeugpreiskategorie_2klassen.pkl"
 )
@@ -64,7 +64,7 @@ def clean_data(data: dict) -> dict:
         "bundesland": str(data.get("bundesland", "unknown")),
         "wochentag": str(data.get("wochentag", "unknown")),
 
-        "verkaufszahl": float(data.get("verkaufszahl") or 0),
+        "verkaufszahl": float(data.get("verkaufszahl") or 1),
         "hubraum_l": float(data.get("hubraum_l") or 0),
         "jahr": int(data.get("jahr") or 0),
         "monat": int(data.get("monat") or 0),

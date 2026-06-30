@@ -21,11 +21,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Databases
-*.db
-
-# PostgreSQL exports
-*.sql
 
 # Secrets
 .env

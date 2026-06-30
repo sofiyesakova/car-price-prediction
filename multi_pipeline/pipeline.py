@@ -41,7 +41,7 @@ def run_pipeline():
         print("RAW DATA:", data)
 
         # ==================================================
-        # 2. TIME FEATURES (FORCED SAFE)
+        # 2. TIME FEATURES
         # ==================================================
 
         data["jahr"] = received_date.year
@@ -49,7 +49,7 @@ def run_pipeline():
         data["wochentag"] = received_date.weekday()
 
         # ==================================================
-        # 3. CLEANING (CRITICAL FIX)
+        # 3. CLEANING
         # ==================================================
 
         # categorical safety
